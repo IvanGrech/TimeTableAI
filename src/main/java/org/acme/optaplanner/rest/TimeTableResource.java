@@ -2,13 +2,10 @@ package org.acme.optaplanner.rest;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import org.acme.optaplanner.bootstrap.DemoDataGenerator;
 import org.acme.optaplanner.domain.Lesson;
 import org.acme.optaplanner.domain.TimeTable;
 import org.acme.optaplanner.persistence.LessonRepository;
@@ -34,6 +31,9 @@ public class TimeTableResource {
     RoomRepository roomRepository;
     @Inject
     LessonRepository lessonRepository;
+
+    @Inject
+    DemoDataGenerator demoDataGenerator;
 
     @Inject
     SolverManager<TimeTable, Long> solverManager;
@@ -69,6 +69,37 @@ public class TimeTableResource {
     public void stopSolving() {
         solverManager.terminateEarly(SINGLETON_TIME_TABLE_ID);
     }
+
+    @DELETE
+    @Path("deleteAllLessons")
+    @Transactional
+    public void deleteAllLessons() {
+        lessonRepository.listAll().forEach(lesson -> {
+            lessonRepository.delete(lesson);
+        });
+    }
+
+    @POST
+    @Path("generateDemoData")
+    @Transactional
+    public void generateDemoData() {
+
+        lessonRepository.listAll().forEach(lesson -> {
+            lessonRepository.delete(lesson);
+        });
+
+        timeslotRepository.listAll().forEach(timeslot -> {
+            timeslotRepository.delete(timeslot);
+        });
+
+        roomRepository.listAll().forEach(room -> {
+            roomRepository.delete(room);
+        });
+
+
+        demoDataGenerator.generateDemoData(null);
+    }
+
 
     @Transactional
     protected TimeTable findById(Long id) {

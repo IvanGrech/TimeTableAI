@@ -220,6 +220,22 @@ function deleteRoom(room) {
   });
 }
 
+function deleteAllLessons() {
+  $.delete("/timeTable/deleteAllLessons", function () {
+    refreshTimeTable();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Deleting all lessons failed.", xhr);
+  });
+}
+
+function generateDemoData() {
+  $.post("/timeTable/generateDemoData", function () {
+    refreshTimeTable();
+  }).fail(function (xhr, ajaxOptions, thrownError) {
+    showError("Generating demo data failed", xhr);
+  });
+}
+
 function showError(title, xhr) {
   const serverErrorMessage = !xhr.responseJSON ? `${xhr.status}: ${xhr.statusText}` : xhr.responseJSON.message;
   console.error(title + "\n" + serverErrorMessage);
@@ -284,6 +300,13 @@ $(document).ready(function () {
   $("#addRoomSubmitButton").click(function () {
     addRoom();
   });
+  $("#deleteLessonsButton").click(function () {
+    deleteAllLessons();
+  });
+  $("#demoDataButton").click(function () {
+    generateDemoData();
+  });
+
 
   refreshTimeTable();
 });
